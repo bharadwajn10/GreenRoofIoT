@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Sensor Detail | Green Roof IoT</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #eef5f9;
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      max-width: 1000px;
+      margin: auto;
+      background-color: #fff;
+      padding: 30px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      border-radius: 10px;
+    }
+    h1 {
+      font-size: 32px;
+      color: #1565c0;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    .info {
+      margin-bottom: 30px;
+      text-align: center;
+    }
+    .info p {
+      font-size: 16px;
+      margin: 4px 0;
+      color: #333;
+    }
+    .summary {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      margin-bottom: 30px;
+    }
+    .card {
+      flex: 1 1 30%;
+      background-color: #e3f2fd;
+      margin: 10px;
+      padding: 20px;
+      border-radius: 8px;
+      text-align: center;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    .card h3 {
+      margin: 0;
+      font-size: 18px;
+      color: #0d47a1;
+    }
+    .card p {
+      font-size: 24px;
+      margin: 10px 0 0;
+      color: #1b5e20;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 12px;
+      text-align: center;
+      font-size: 14px;
+    }
+    th {
+      background-color: #bbdefb;
+      color: #0d47a1;
+    }
+    tr:hover {
+      background-color: #e3f2fd;
+    }
+    tr:nth-child(even) {
+      background-color: #f1f8e9;
+    }
+    @media (max-width: 768px) {
+      .summary {
+        flex-direction: column;
+        align-items: center;
+      }
+      .card {
+        width: 80%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>Sensor Detail</h1>
+
+    <div class="info">
+      <p><strong>System Name:</strong> Green Roof IoT Monitor</p>
+      <p><strong>Monitoring Lead:</strong> Bharadwaj and Indrani</p>
+      <p><strong>System ID:</strong> GR-IOT-2025</p>
+      <p><strong>Location:</strong> Alliance University, Bengaluru</p>
+    </div>
+
+    <div class="summary">
+      <div class="card">
+        <h3>Temperature</h3>
+        <p id="tempCard">-- °C</p>
+      </div>
+      <div class="card">
+        <h3>Humidity</h3>
+        <p id="humidityCard">-- %</p>
+      </div>
+      <div class="card">
+        <h3>Soil Moisture</h3>
+        <p id="moistureCard">-- %</p>
+      </div>
+       <div class="card">
+        <h3>Pressure</h3>
+        <p id="pressure(hpa)">-- %</p>
+      </div>
+             <div class="card">
+        <h3>Nutrient Index</h3>
+        <p id="Nutrient Index">-- %</p>
+      </div>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Timestamp</th>
+          <th>Temperature (°C)</th>
+          <th>Humidity (%)</th>
+          <th>Pressure (hPa)</th>
+          <th>Soil Moisture (%)</th>
+          <th>pH</th>
+          <th>Nutrient Index</th>
+        </tr>
+      </thead>
+      <tbody id="sensorTable">
+        <!-- Sensor rows will be inserted here -->
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    const table = document.getElementById('sensorTable');
+    const tempCard = document.getElementById('tempCard');
+    const humidityCard = document.getElementById('humidityCard');
+    const moistureCard = document.getElementById('moistureCard');
+
+    let latest;
+
+    for (let i = 0; i < 60; i++) {
+      const timestamp = `2025-10-04 10:${(i % 60).toString().padStart(2, '0')}`;
+      const temp = (29 + Math.random() * 2).toFixed(1);
+      const humidity = (65 + Math.random() * 5).toFixed(1);
+      const pressure = (1011 + Math.random() * 2).toFixed(1);
+      const moisture = (40 + Math.random() * 10).toFixed(1);
+      const ph = (6 + Math.random() * 0.5).toFixed(2);
+      const nutrient = (3 + Math.random()).toFixed(2);
+
+      if (i === 59) {
+        latest = { temp, humidity, moisture };
+      }
+
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${timestamp}</td>
+        <td>${temp}</td>
+        <td>${humidity}</td>
+        <td>${pressure}</td>
+        <td>${moisture}</td>
+        <td>${ph}</td>
+        <td>${nutrient}</td>
+      `;
+      table.appendChild(row);
+    }
+
+    // Update summary cards
+    tempCard.textContent = `${latest.temp} °C`;
+    humidityCard.textContent = `${latest.humidity} %`;
+    moistureCard.textContent = `${latest.moisture} %`;
+  </script>
+
+</body>
+</html>
