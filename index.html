@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Green Roof IoT Monitor Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        'primary-blue': '#2563eb',
+                        'brand-accent': '#16a34a',
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        /* Custom scrollbar styling */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-thumb { background: #9CA3AF; border-radius: 10px; }
+
+        /* The main background: A subtle, light olive green gradient */
+        body {
+            background-color: #F0F3E5;
+            background-image: linear-gradient(180deg, #E9EEDF 0%, #F0F3E5 100%);
+        }
+    </style>
+</head>
+<body class="font-sans min-h-screen p-4 sm:p-8">
+
+    <div class="max-w-7xl mx-auto space-y-8">
+        
+        <header class="bg-white p-6 rounded-xl shadow-lg border-t-4 border-primary-blue">
+            <h1 class="text-3xl font-extrabold text-gray-900 flex items-center">
+                <span class="text-brand-accent mr-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17.5 7.3 19 10c-1.5-1.4-3.3-2.6-5.3-3.7C10.7 7.7 7 10 7 14c0 1.5.7 2.9 1.5 4.1.8 1.2 1.8 2.2 3 2.9z"/><path d="M11 14.5c-.3 1.5-.6 3-1 4.5"/></svg>
+                </span>
+                Green Roof IoT Monitor
+            </h1>
+            <p class="mt-1 text-sm text-gray-600">Real-time Environmental and Soil Health Data</p>
+            <div class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-gray-500">
+                <span><span class="font-semibold text-gray-800">System ID:</span> <span id="system-id">GR-IOT-2025</span></span>
+                <span><span class="font-semibold text-gray-800">Monitoring Lead:</span> <span id="monitoring-lead">Bharadwaj and Indrani</span></span>
+                <span><span class="font-semibold text-gray-800">Location:</span> <span id="location">Alliance University, Bengaluru</span></span>
+                <span class="text-right md:text-left"><span class="font-semibold text-gray-800">Last Update:</span> <span id="last-update" class="font-medium text-brand-accent">Initializing...</span></span>
+            </div>
+        </header>
+
+        <section id="kpi-cards" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+            <div id="temp-card" class="metric-card bg-white p-5 rounded-xl shadow-lg border-b-4 border-gray-200">
+                <div class="flex items-center justify-between">
+                    <span class="text-sm font-medium text-gray-500">Temperature (°C)</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4v10.54a4 4 0 1 1-4 0V4z"/><path d="M8 2a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2V2z"/></svg>
+                </div>
+                <p id="temp-value" class="text-3xl font-bold mt-2 text-gray-900">--</p>
+                <div id="temp-status" class="text-xs mt-1 font-semibold">--</div>
+            </div>
+
+            <div id="humidity-card" class="metric-card bg-white p-5 rounded-xl shadow-lg border-b-4 border-gray-200">
+                <div class="flex items-center justify-between">
+                    <span class="text-sm font-medium text-gray-500">Humidity (%)</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6366F1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.68 12.68c-.62-.62-1.28-1.26-1.92-1.9L6.5 6.5C4.2 4.2 4.2 1.8 6.5 1.8s4.2 2.4 6.5 4.7l4.24 4.24c.64.64 1.28 1.28 1.92 1.9.36.36.7.7.92 1.1"/></svg>
+                </div>
+                <p id="humidity-value" class="text-3xl font-bold mt-2 text-gray-900">--</p>
+                <div id="humidity-status" class="text-xs mt-1 font-semibold">--</div>
+            </div>
+
+            <div id="moisture-card" class="metric-card bg-white p-5 rounded-xl shadow-lg border-b-4 border-gray-200">
+                <div class="flex items-center justify-between">
+                    <span class="text-sm font-medium text-gray-500">Soil Moisture (%)</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.32 0L12 2.69z"/><path d="M12 12v6"/></svg>
+                </div>
+                <p id="moisture-value" class="text-3xl font-bold mt-2 text-gray-900">--</p>
+                <div id="moisture-status" class="text-xs mt-1 font-semibold">--</div>
+            </div>
+
+            <div id="pressure-card" class="metric-card bg-white p-5 rounded-xl shadow-lg border-b-4 border-gray-200">
+                <div class="flex items-center justify-between">
+                    <span class="text-sm font-medium text-gray-500">Pressure (hPa)</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FBBF24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 12v-4"/><path d="M12 12H8"/><path d="M12 12l3 3"/><path d="M22 12c0 5.5-4.5 10-10 10S2 17.5 2 12 6.5 2 12 2s10 4.5 10 10z"/></svg>
+                </div>
+                <p id="pressure-value" class="text-3xl font-bold mt-2 text-gray-900">--</p>
+                <div id="pressure-status" class="text-xs mt-1 font-semibold">--</div>
+            </div>
+
+            <div id="ph-card" class="metric-card bg-white p-5 rounded-xl shadow-lg border-b-4 border-gray-200">
+                <div class="flex items-center justify-between">
+                    <span class="text-sm font-medium text-gray-500">pH Level</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#65A30D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2v13.5a2.5 2.5 0 0 1-5 0V2"/><path d="M14 2h-4"/><path d="M8 12h8"/><path d="M8 17h8"/></svg>
+                </div>
+                <p id="ph-value" class="text-3xl font-bold mt-2 text-gray-900">--</p>
+                <div id="ph-status" class="text-xs mt-1 font-semibold">--</div>
+            </div>
+
+            <div id="nutrient-card" class="metric-card bg-white p-5 rounded-xl shadow-lg border-b-4 border-gray-200">
+                <div class="flex items-center justify-between">
+                    <span class="text-sm font-medium text-gray-500">Nutrient Index</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5a2 2 0 0 1-2-2.5c-.1-1.3-.5-3.1-3-3.5"/><path d="M12 22a7 7 0 0 1-7-7c0-2 1-3.9 3-5.5a2 2 0 0 0 2-2.5c.1-1.3.5-3.1 3-3.5"/></svg>
+                </div>
+                <p id="nutrient-value" class="text-3xl font-bold mt-2 text-gray-900">--</p>
+                <div id="nutrient-status" class="text-xs mt-1 font-semibold">--</div>
+            </div>
+        </section>
+        
+        <section class="bg-white p-6 rounded-xl shadow-lg">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">Historical Data Log</h2>
+            <div class="overflow-x-auto">
+                <table class="min-w-full">
+                    <thead>
+                        <tr class="border-b border-gray-200">
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Timestamp</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Temp (°C)</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Humidity (%)</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pressure (hPa)</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Moisture (%)</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">pH</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nutrient Index</th>
+                        </tr>
+                    </thead>
+                    <tbody id="data-table-body" class="divide-y divide-gray-100">
+                        </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+
+    <script>
+    // --- Configuration ---
+    const FLASK_API_URL = 'http://<SYSTEM IP ADDRESS>:5000/get_data'; 
+    const REFRESH_INTERVAL_MS = 5000;
+    const MAX_ROWS_TO_DISPLAY = 30;
+
+    // --- DOM Element References ---
+    const lastUpdateEl = document.getElementById('last-update');
+    const tableBody = document.getElementById('data-table-body');
+    
+    const tempValue = document.getElementById('temp-value');
+    const humidityValue = document.getElementById('humidity-value');
+    const moistureValue = document.getElementById('moisture-value');
+    const pressureValue = document.getElementById('pressure-value');
+    const phValue = document.getElementById('ph-value');
+    const nutrientValue = document.getElementById('nutrient-value');
+
+    const tempStatus = document.getElementById('temp-status');
+    const humidityStatus = document.getElementById('humidity-status');
+    const moistureStatus = document.getElementById('moisture-status');
+    const pressureStatus = document.getElementById('pressure-status');
+    const phStatus = document.getElementById('ph-status');
+    const nutrientStatus = document.getElementById('nutrient-status');
+
+    function setStatus(element, text, color, borderColor) {
+        element.textContent = text;
+        element.className = `text-xs mt-1 font-semibold ${color}`;
+        const card = element.closest('.metric-card');
+        if (card) {
+            // Reset all possible border colors
+            card.classList.remove('border-red-500', 'border-yellow-500', 'border-green-500', 'border-blue-500', 'border-gray-200', 'border-indigo-500', 'border-lime-600', 'border-amber-600');
+            card.classList.add(borderColor);
+        }
+    }
+    
+    function updateCardStatuses(latestData) {
+        // Temperature
+        if (latestData.temperature > 35) {
+            setStatus(tempStatus, 'High', 'text-red-500', 'border-red-500');
+        } else if (latestData.temperature < 15) {
+            setStatus(tempStatus, 'Low', 'text-blue-500', 'border-blue-500');
+        } else {
+            setStatus(tempStatus, 'Normal', 'text-green-600', 'border-green-500');
+        }
+
+        // Humidity
+        if (latestData.humidity < 0 || latestData.humidity > 100) {
+            setStatus(humidityStatus, 'Error', 'text-red-500', 'border-red-500');
+        } else if (latestData.humidity < 40) {
+            setStatus(humidityStatus, 'Low', 'text-yellow-500', 'border-yellow-500');
+        } else {
+            setStatus(humidityStatus, 'Optimal', 'text-green-600', 'border-green-500');
+        }
+
+        // Soil Moisture
+        if (latestData.soilMoisture > 100) {
+             setStatus(moistureStatus, 'Saturated', 'text-blue-500', 'border-blue-500');
+        } else if (latestData.soilMoisture < 30) {
+            setStatus(moistureStatus, 'Dry', 'text-red-500', 'border-red-500');
+        } else {
+            setStatus(moistureStatus, 'Good', 'text-green-600', 'border-green-500');
+        }
+
+        // Pressure
+        setStatus(pressureStatus, 'Stable', 'text-gray-500', 'border-yellow-500');
+
+        // pH
+        if (latestData.ph < 6.0) {
+            setStatus(phStatus, 'Acidic', 'text-amber-600', 'border-lime-600');
+        } else if (latestData.ph > 7.5) {
+            setStatus(phStatus, 'Alkaline', 'text-indigo-500', 'border-indigo-500');
+        } else {
+            setStatus(phStatus, 'Neutral', 'text-green-600', 'border-green-500');
+        }
+
+        // Nutrient Index
+        if (latestData.nutrientIndex > 400) {
+            setStatus(nutrientStatus, 'Rich', 'text-blue-500', 'border-blue-500');
+        } else if (latestData.nutrientIndex < 100) {
+            setStatus(nutrientStatus, 'Depleted', 'text-red-500', 'border-red-500');
+        } else {
+            setStatus(nutrientStatus, 'Good', 'text-green-600', 'border-green-500');
+        }
+    }
+
+    async function fetchData() {
+        try {
+            const response = await fetch(FLASK_API_URL);
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            const result = await response.json();
+
+            if (result.success && result.data.length > 0) {
+                const latest = result.data[0];
+                lastUpdateEl.textContent = new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+
+                tempValue.textContent = latest.temperature.toFixed(1);
+                humidityValue.textContent = latest.humidity.toFixed(1);
+                pressureValue.textContent = latest.pressure.toFixed(1);
+                moistureValue.textContent = latest.soilMoisture.toFixed(1);
+                phValue.textContent = latest.ph.toFixed(2);
+                nutrientValue.textContent = latest.nutrientIndex.toFixed(2);
+
+                updateCardStatuses(latest);
+
+                tableBody.innerHTML = ''; 
+                const limitedData = result.data.slice(0, MAX_ROWS_TO_DISPLAY);
+                limitedData.forEach(item => {
+                    const row = document.createElement('tr');
+                    const timestamp = new Date(item.recorded_at).toLocaleString('en-IN');
+                    
+                    row.innerHTML = `
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${timestamp}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">${item.temperature.toFixed(1)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">${item.humidity.toFixed(1)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">${item.pressure.toFixed(1)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">${item.soilMoisture.toFixed(1)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">${item.ph.toFixed(2)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">${item.nutrientIndex.toFixed(2)}</td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            } else {
+                tableBody.innerHTML = '<tr><td colspan="7" class="px-6 py-4 text-center text-gray-500">No data records found. Is the ESP32 running?</td></tr>';
+            }
+        } catch (error) {
+            console.error('Failed to connect to the server or process data:', error);
+            tableBody.innerHTML = '<tr><td colspan="7" class="px-6 py-4 text-center text-red-600 font-bold">ERROR: Could not connect to Flask server. Check IP &amp; if app.py is running.</td></tr>';
+        }
+    }
+
+    fetchData();
+    setInterval(fetchData, REFRESH_INTERVAL_MS);
+    </script>
+</body>
+</html>
