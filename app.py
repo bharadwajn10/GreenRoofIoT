@@ -1,12 +1,12 @@
 import sqlite3
 from flask import Flask, request, jsonify, g
 from flask_cors import CORS
-from datetime import datetime, timezone # FIX 1: IMPORT the necessary datetime modules
+from datetime import datetime, timezone 
 
 # --- Application Setup ---
 app = Flask(__name__)
 CORS(app) 
-DATABASE = 'sensor_data.db'
+DATABASE = r'C:\Users\bhara\Downloads\Terranode\GreenRoofIOT\sensor_data.db'
 
 # --- Database Connection Management ---
 def get_db():
@@ -34,8 +34,6 @@ def init_db():
                 pressure REAL,
                 soilMoisture REAL,
                 ph REAL,
-                nutrientIndex REAL,
-                -- FIX 2: REMOVE 'DEFAULT CURRENT_TIMESTAMP'. The app will provide the timestamp.
                 recorded_at TEXT NOT NULL 
             )
         ''')
@@ -54,23 +52,25 @@ def insert_data():
     pressure = data.get('pressure')
     soilMoisture = data.get('soilMoisture')
     ph = data.get('ph')
-    nutrientIndex = data.get('nutrientIndex')
 
-    if None in [temperature, humidity, pressure, soilMoisture, ph, nutrientIndex]:
+    # Note: Your ESP32 code is only sending 5 fields, which is correct for the 5 data columns + 1 timestamp.
+    if None in [temperature, humidity, pressure, soilMoisture, ph]:
+        # Log incoming data for debugging if a value is missing
+        print(f"Missing data. Received: {data}")
         return jsonify({"success": False, "error": "One or more sensor values are missing"}), 400
 
     try:
         db = get_db()
         cursor = db.cursor()
         
-        # FIX 3: GENERATE a timezone-aware UTC timestamp in ISO 8601 format
+        # Generate a timezone-aware UTC timestamp in ISO 8601 format
         now_utc = datetime.now(timezone.utc)
         timestamp_for_db = now_utc.strftime('%Y-%m-%dT%H:%M:%SZ')
 
-        # FIX 4: ADD the 'recorded_at' column and the new timestamp to the SQL query
+        # CRITICAL FIX: The SQL query must only have 6 question marks (?) for the 6 columns being inserted.
         cursor.execute(
-            "INSERT INTO sensor_data (temperature, humidity, pressure, soilMoisture, ph, nutrientIndex, recorded_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
-            (temperature, humidity, pressure, soilMoisture, ph, nutrientIndex, timestamp_for_db)
+            "INSERT INTO sensor_data (temperature, humidity, pressure, soilMoisture, ph, recorded_at) VALUES (?, ?, ?, ?, ?, ?)",
+            (temperature, humidity, pressure, soilMoisture, ph, timestamp_for_db)
         )
         db.commit()
         return jsonify({"success": True, "message": "Data inserted successfully"}), 200
@@ -84,7 +84,6 @@ def get_data():
         db = get_db()
         cursor = db.cursor()
         
-        # This query remains the same and will work perfectly
         cursor.execute("SELECT * FROM sensor_data ORDER BY id DESC")
         rows = cursor.fetchall()
         
@@ -95,6 +94,8 @@ def get_data():
         return jsonify({"success": False, "error": str(e)}), 500
 
 if __name__ == '__main__':
+    # Initialize the database table structure
     init_db()
     print("Database Initialized. Running Flask Server...")
+    # Run the server, accessible from your ESP32 on the network
     app.run(host='0.0.0.0', port=5000)
